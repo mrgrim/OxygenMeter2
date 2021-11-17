@@ -112,7 +112,16 @@ namespace OxygenMeter
 	}
 }
 
-extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a_skse, SKSE::PluginInfo* a_info)
+extern "C" __declspec(dllexport) constexpr auto SKSEPlugin_Version = []() {
+	SKSE::PluginVersionData v{};
+	v.pluginVersion = Version::MAJOR;
+	v.PluginName("Oxygen Meter"sv);
+	v.AuthorName("powerofthree"sv);
+	v.CompatibleVersions({ SKSE::RUNTIME_1_6_318 });
+	return v;
+}();
+
+bool InitLogger()
 {
 	auto path = logger::log_directory();
 	if (!path) {
@@ -132,21 +141,6 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Query(const SKSE::QueryInterface* a
 
 	logger::info(FMT_STRING("{} v{}"), Version::PROJECT, Version::NAME);
 
-	a_info->infoVersion = SKSE::PluginInfo::kVersion;
-	a_info->name = "Oxygen Meter";
-	a_info->version = Version::MAJOR;
-
-	if (a_skse->IsEditor()) {
-		logger::critical("Loaded in editor, marking as incompatible"sv);
-		return false;
-	}
-
-	const auto ver = a_skse->RuntimeVersion();
-	if (ver < SKSE::RUNTIME_1_5_39) {
-		logger::critical(FMT_STRING("Unsupported runtime version {}"), ver.string());
-		return false;
-	}
-
 	return true;
 }
 
@@ -154,6 +148,10 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 {
 	logger::info("loaded plugin");
 
+	if (!InitLogger()) {
+		return false;
+	}
+	
 	SKSE::Init(a_skse);
 
 	Settings::GetSingleton()->Load();
