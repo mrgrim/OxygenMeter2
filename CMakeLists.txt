@@ -84,8 +84,6 @@ else ()
 	)
 endif ()
 
-find_package(spdlog REQUIRED CONFIG)
-
 find_path(SIMPLEINI_INCLUDE_DIRS "ConvertUTF.c")
 
 # ---- Add source files ----
