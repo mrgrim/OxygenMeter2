@@ -33,7 +33,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STR
 
 project(
 	po3_OxygenMeter
-	VERSION 1.2.1
+	VERSION 1.2.2
 	LANGUAGES CXX
 )
 
@@ -60,10 +60,6 @@ endif()
 
 # ---- Globals ----
 
-add_compile_definitions(
-	SKSE_SUPPORT_XBYAK
-)
-
 if (MSVC)
 	if (NOT ${CMAKE_GENERATOR} STREQUAL "Ninja")
 		add_compile_options(
@@ -89,7 +85,6 @@ else ()
 endif ()
 
 find_package(spdlog REQUIRED CONFIG)
-find_package(xbyak REQUIRED CONFIG)
 
 find_path(SIMPLEINI_INCLUDE_DIRS "ConvertUTF.c")
 
@@ -149,8 +144,6 @@ target_link_libraries(
 	${PROJECT_NAME}
 	PRIVATE
 		CommonLibSSE::CommonLibSSE
-		spdlog::spdlog
-		xbyak::xbyak
 )
 
 target_precompile_headers(
