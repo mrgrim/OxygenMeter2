@@ -185,7 +185,7 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 		return false;
 	}
 
-	OxygenMeter::Install();
+	//OxygenMeter::Install();
 
 	g_messaging->RegisterListener("SKSE", SKSEMessageHandler);
 
