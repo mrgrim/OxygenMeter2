@@ -1,4 +1,11 @@
 #include "Settings.h"
+#include "SKSE/API.h"
+#include "oxyMeter.h"
+#include "Events.h"
+
+const SKSE::MessagingInterface* g_messaging = nullptr;
+const SKSE::LoadInterface* g_LoadInterface = nullptr;
+const SKSE::QueryInterface* g_QueryInterface = nullptr;
 
 namespace OxygenMeter
 {
@@ -85,7 +92,7 @@ namespace OxygenMeter
 			static std::optional<double> get_player_breath_pct()
 			{
 				auto player = RE::PlayerCharacter::GetSingleton();
-				if (player->GetSubmergedWaterLevel(player->GetPositionZ(), player->GetParentCell()) < 0.875f || player->IsInvulnerable() || player->GetActorValue(RE::ActorValue::kWaterBreathing) > 0.0001f) {
+				if (player->IsPointDeepUnderWater(player->GetPositionZ(), player->GetParentCell()) < 0.875f || player->IsInvulnerable() || player->GetActorValue(RE::ActorValue::kWaterBreathing) > 0.0001f) {
 					return std::nullopt;
 				}
 
@@ -112,11 +119,29 @@ namespace OxygenMeter
 	}
 }
 
+static void SKSEMessageHandler(SKSE::MessagingInterface::Message* message)
+{
+	switch (message->type) {
+	case SKSE::MessagingInterface::kDataLoaded:
+		oxygenMenu::Register();
+		MenuOpenCloseEventHandler::Register();
+		break;
+
+	case SKSE::MessagingInterface::kNewGame:
+		oxygenMenu::Show();
+		break;
+
+	case SKSE::MessagingInterface::kPostLoadGame:
+		oxygenMenu::Show();
+		break;
+	}
+}
+
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
 	v.PluginVersion(Version::MAJOR);
-	v.PluginName("Oxygen Meter");
-	v.AuthorName("powerofthree");
+	v.PluginName("Oxygen Meter 2");
+	v.AuthorName("powerofthree and OsmosisWrench");
 	v.UsesAddressLibrary(true);
 	v.CompatibleVersions({ SKSE::RUNTIME_LATEST });
 
@@ -154,7 +179,15 @@ extern "C" DLLEXPORT bool SKSEAPI SKSEPlugin_Load(const SKSE::LoadInterface* a_s
 
 	Settings::GetSingleton()->Load();
 
+	g_messaging = SKSE::GetMessagingInterface();
+	if (!g_messaging) {
+		logger::critical("Failed to load messaging interface! This error is fatal, plugin will not load.");
+		return false;
+	}
+
 	OxygenMeter::Install();
+
+	g_messaging->RegisterListener("SKSE", SKSEMessageHandler);
 
 	return true;
 }
