@@ -21,6 +21,8 @@ RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuO
 	auto mName = a_event->menuName;
 	auto ui = RE::UI::GetSingleton();
 
+	RE::DebugNotification(mName.c_str());
+
 	if (mName == RE::JournalMenu::MENU_NAME ||
 		mName == RE::InventoryMenu::MENU_NAME ||
 		mName == RE::MapMenu::MENU_NAME ||

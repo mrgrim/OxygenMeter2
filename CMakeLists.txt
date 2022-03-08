@@ -14,7 +14,7 @@ endmacro()
 
 set_from_environment(Skyrim64Path)
 set_from_environment(VCPKG_ROOT)
-set_from_environment(CommonLibSSEPath)
+set_from_environment(CommonLibVRPath)
 
 if (DEFINED VCPKG_ROOT)
 	set(CMAKE_TOOLCHAIN_FILE "${VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -75,12 +75,12 @@ set(Boost_USE_STATIC_LIBS ON)
 
 # ---- Dependencies ----
 
-if (DEFINED CommonLibSSEPath AND NOT ${CommonLibSSEPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibSSEPath})
-	add_subdirectory(${CommonLibSSEPath} CommonLibSSE)
+if (DEFINED CommonLibVRPath AND NOT ${CommonLibVRPath} STREQUAL "" AND IS_DIRECTORY ${CommonLibVRPath})
+	add_subdirectory(${CommonLibVRPath} CommonLibSSE)
 else ()
 	message(
 		FATAL_ERROR
-		"Variable CommonLibSSEPath is not set."
+		"Variable CommonLibVRPath is not set."
 	)
 endif ()
 

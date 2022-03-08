@@ -12,7 +12,7 @@ SKSE plugin that repurposes the enchantment charge meter for an oxygen meter whe
 	* Desktop development with C++
 * [CommonLibSSE](https://github.com/powerof3/CommonLibSSE/tree/dev)
 	* You need to build from the powerof3/dev branch
-	* Add this as as an environment variable `CommonLibSSEPath`
+	* Add this as as an environment variable `CommonLibVRPath`
 
 ## Register Visual Studio as a Generator
 * Open `x64 Native Tools Command Prompt`

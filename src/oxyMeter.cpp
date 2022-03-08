@@ -24,8 +24,6 @@ oxygenMenu::oxygenMenu()
 	});
 }
 
-struct detail
-{
 	static float get_total_breath_time()
 	{
 		const auto gamesetting = RE::GameSettingCollection::GetSingleton();
@@ -45,12 +43,12 @@ struct detail
 			return std::nullopt;
 		}
 
-		float totalBreathTime = detail::get_total_breath_time();
-		float remainingBreath = detail::get_remaining_breath(player->currentProcess);
+		float totalBreathTime = get_total_breath_time();
+		float remainingBreath = get_remaining_breath(player->currentProcess);
 
 		return (remainingBreath / totalBreathTime) * 100.0;
 	}
-};
+
 
 void oxygenMenu::Register()
 {
@@ -117,7 +115,7 @@ void oxygenMenu::Update()
 		return;
 
 	static bool fadeWhenDrowning{ Settings::GetSingleton()->fadeWhenDrowning };
-	auto fillPct = detail::get_player_breath_pct();
+	auto fillPct = get_player_breath_pct();
 
 	if (fillPct) {
 		ApplyLayout(oxygenMeter);
