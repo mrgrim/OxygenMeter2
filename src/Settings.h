@@ -18,7 +18,6 @@ public:
 
 		ini.LoadFile(path);
 
-		detail::get_value(ini, useLeftMeter, "Settings", "Meter placement", ";Oxygen Meter position. 0 - Right, 1 - Left");
 		detail::get_value(ini, fadeWhenDrowning, "Settings", "Fade out when drowning", ";Oxygen meter fades out when you run out of oxygen and your health starts decreasing");
 		detail::get_value(ini, widget_xpos, "Widget", "Widget X Position", ";The X Position for the widget, default is 961.000000");
 		detail::get_value(ini, widget_ypos, "Widget", "Widget Y Position", ";The Y Position for the widget, default is 1040.000000");
@@ -29,7 +28,6 @@ public:
 		ini.SaveFile(path);
 	}
 
-	std::uint32_t useLeftMeter{ 0 };
 	bool fadeWhenDrowning{ true };
 	float widget_xpos{ 961.0f };
 	float widget_ypos{ 1040.0f };
