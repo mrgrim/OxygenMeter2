@@ -1,15 +1,15 @@
 {
-  "name": "oxygen-meter",
-  "version-string": "1.2.0",
-  "description": "Oxygen Meter",
+  "name": "oxygen-meter2",
+  "version-string": "1.3.0",
+  "description": "Oxygen Meter 2",
   "homepage": "",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
     "simpleini",
     "spdlog",
-    "rsm-binary-io",
-    "xbyak"
+    "xbyak",
+    "rsm-binary-io"
   ],
   "builtin-baseline": "c06dfc0ac2649834da8b9f3092b907fb037accab",
   "overrides": [
