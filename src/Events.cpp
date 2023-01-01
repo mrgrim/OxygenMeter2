@@ -19,9 +19,9 @@ void MenuOpenCloseEventHandler::Register()
 
 RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 {
-		// from ersh TrueHud pretty much verbatim
+	auto ui = RE::UI::GetSingleton();
 	if (a_event) {
-		logger::info("Menu: {} :: {}",a_event->menuName.c_str(), a_event->opening);
+		logger::info("Menu: {} :: {}",a_event->menuName.c_str(), a_event->opening ? "opening" : "closing");
 		if (a_event->menuName == RE::HUDMenu::MENU_NAME) {
 			if (a_event->opening) {
 				oxygenMenu::Show();
@@ -36,6 +36,9 @@ RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuO
 		}
 		if (a_event->menuName == RE::ContainerMenu::MENU_NAME && a_event->opening){
 			oxygenMenu::Hide();
+		}
+		if (a_event->menuName == RE::ContainerMenu::MENU_NAME && !a_event->opening && !ui->IsMenuOpen("PluginExplorerMenu")) {
+			oxygenMenu::Show();
 		}
 		if (a_event->menuName == RE::JournalMenu::MENU_NAME) {
 			Settings::GetSingleton()->Load();
