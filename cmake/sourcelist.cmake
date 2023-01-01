@@ -1,5 +1,6 @@
 set(sources ${sources}
-	src/oxyMeter.cpp
+	src/Events.cpp
 	src/main.cpp
+	src/oxyMeter.cpp
 	src/PCH.cpp
 )

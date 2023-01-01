@@ -4,5 +4,6 @@
         "xlocale": "cpp",
         "xlocinfo": "cpp",
         "xstring": "cpp"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
