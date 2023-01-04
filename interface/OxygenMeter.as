@@ -12,6 +12,8 @@ import com.greensock.easing.*;
 class OxygenMeter extends MovieClip
 {
 	var MeterContainer:MovieClip;
+	var FlashMeter:MovieClip;
+	
 	var meterDuration:Number;
 	var minWidth:Number;
 	var maxWidth:Number;
@@ -20,7 +22,17 @@ class OxygenMeter extends MovieClip
 	var targetPercent:Number;
 
 	var MeterTimeline:TimelineLite;
-
+	var FlashTimeline:TimelineLite;
+	var FaderTimeline:TimelineLite;
+	
+	var MeterContainerBarColor:Color;
+	var MeterContainerBarBGColor:Color;
+	var FlashMeterColor:Color;
+	var FlashMeterColorTransform:Object;
+	
+	var RainbowMode:Boolean = false;
+	var MenuSetup:Boolean = false;
+	
 	function OxygenMeter()
 	{
 		super();
@@ -28,17 +40,38 @@ class OxygenMeter extends MovieClip
 		meterDuration = 0.01;
 
 		MeterTimeline = new TimelineLite({paused:true});
+		//FlashTimeline = new TimelineLite({paused:true, onUpdate:setTransformOnUpdate, onUpdateScope:this, onComplete:doFlash, onCompleteScope:this});
+		FlashTimeline = new TimelineLite({paused:true, onUpdate:setTransformOnUpdate, onUpdateScope:this});
+		FaderTimeline = new TimelineLite({paused:true});
+		
+		
+		MeterContainerBarColor = new Color(MeterContainer.Bar.BarColour);
+		MeterContainerBarBGColor = new Color(MeterContainer.BarBG);
+		FlashMeterColor = new Color(FlashMeter);
+		//setBarAndFlashColor(0xc076e8, 0xc076e8);
+
+		
+		FlashMeterColorTransform = { aa: 100, ab: -255 }
+		FlashMeterColor.setTransform(FlashMeterColorTransform);
+		
 		maxWidth = MeterContainer.Mask._x;
 		minWidth = MeterContainer.Mask._x - MeterContainer.Mask._width;
 		Percent = (maxWidth - minWidth) / 100;
+		
 	}
 	
 	function onLoad(): Void
 	{
 		//setLocation(960, 960, 0, 150, 150);
-		this.gotoAndStop("hide");
+		doHide();
+		//doShow();
+		//doFadeOut();
+		//doFlash();
+		//updateMeterPercent(0);
+		//this.setMeterPercent(0);
 	}
 	
+
 	public function setLocation(xpos: Number, ypos: Number, rot: Number, xscale: Number, yscale: Number): Void
 	{
 		this._x = xpos;
@@ -46,23 +79,56 @@ class OxygenMeter extends MovieClip
 		this._rotation = rot;
 		this._xscale = xscale;
 		this._yscale = yscale;
+		MenuSetup = true;
+	}
+	
+	public function setBarAndFlashColor(newBarColor: Number, newFlashColor: Number ): Void
+	{
+		MeterContainerBarColor.setRGB(newBarColor);
+		MeterContainerBarBGColor.setRGB(newBarColor);
+		FlashMeterColor.setRGB(newFlashColor);
 	}
 	
 	public function doFadeOut(): Void
 	{
-		if (this._currentframe == 1)
-		{
-			this.gotoAndPlay("fadeout");
-		}
+		FaderTimeline.to(this, 1, {ease: Power1.easeOut, _alpha: 0});
+		FaderTimeline.play();
+	}
+	
+	public function doHide(): Void
+	{
+		this._visible = false;
 	}
 		
 	public function doShow(): Void
 	{
-		if (this._currentframe != 1)
-		{
-			this.gotoAndStop("show");
+		this._visible = true;
+		this._alpha = 100;
+	}
+	
+	public function doFlash(): Void
+	{
+		if (!FlashTimeline.isActive()){
+			if (RainbowMode){
+				var c = Math.random() * 0xFFFFFF;
+				setBarAndFlashColor(c, c);
+			}
+			FlashTimeline.to(FlashMeterColorTransform, 0.4, {ease: Power1.easeIn, ab: 0});
+			FlashTimeline.to(FlashMeterColorTransform, 0.3, {ease: Power1.easeOut, ab: -255});
+			FlashTimeline.play();
 		}
 	}
+	
+	public function clearFlash(): Void
+	{
+		
+	}
+	
+	// called onUpdate of FlashTimeline, to apply the ColorTransform alpha tween.
+	function setTransformOnUpdate(){
+		FlashMeterColor.setTransform(FlashMeterColorTransform);
+	}
+	
 	
 	public function setMeterPercent(CurrentPercent:Number):Void
 	{
@@ -89,5 +155,4 @@ class OxygenMeter extends MovieClip
 		MeterTimeline.to(MeterContainer.Mask,1,{_x:minWidth +(Percent * CurrentPercent)},MeterTimeline.time() + meterDuration);
 		MeterTimeline.play();
 	}
-
 }

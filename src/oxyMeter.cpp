@@ -98,24 +98,38 @@ void oxygenMenu::Update()
 		return;
 
 	static bool fadeWhenDrowning{ Settings::GetSingleton()->fadeWhenDrowning };
+	static float flashWhenLow = 50.0f;
 	auto fillPct = detail::get_player_breath_pct();
 
-	if (fillPct) {
-		ApplyLayout(oxygenMeter);
+	RE::GFxValue MenuEnabled = false;
 
-		const RE::GFxValue testAmount = *fillPct;
+	if (fillPct) {
+
+		oxygenMeter->uiMovie->GetVariable(&MenuEnabled, "oxygen.MenuSetup");
+
+		if (&MenuEnabled.IsBool()) {
+			RE::DebugNotification("foundMenuEnabled"); <---- here
+			ApplyLayout(oxygenMeter);
+			oxygenMeter->uiMovie->SetVariable("oxygen.RainbowMode", true);
+		}
+		
+		const RE::GFxValue currentBreathAmount = *fillPct;
 
 		if (!holding_breath) {
 			holding_breath = true;
 		}
 
 		if (drowning && fadeWhenDrowning) {
-			oxygenMeter->uiMovie->Invoke("oxygen.doFadeOut", nullptr, &testAmount, 1);
+			oxygenMeter->uiMovie->Invoke("oxygen.doFadeOut", nullptr, &currentBreathAmount, 1);
 			return;
+		}
+		
+		if (fillPct <= flashWhenLow) {
+			oxygenMeter->uiMovie->Invoke("oxygen.doFlash", nullptr, nullptr, 0);
 		}
 
 		oxygenMeter->uiMovie->Invoke("oxygen.doShow", nullptr, nullptr, 0);
-		oxygenMeter->uiMovie->Invoke("oxygen.setMeterPercent", nullptr, &testAmount, 1);
+		oxygenMeter->uiMovie->Invoke("oxygen.setMeterPercent", nullptr, &currentBreathAmount, 1);
 
 		if (*fillPct == 0.0) {
 			drowning = true;
