@@ -98,19 +98,19 @@ void oxygenMenu::Update()
 		return;
 
 	static bool fadeWhenDrowning{ Settings::GetSingleton()->fadeWhenDrowning };
-	static float flashWhenLow = 50.0f;
+	static float flashWhenBelow{ Settings::GetSingleton()->flashWhenBelow };
 	auto fillPct = detail::get_player_breath_pct();
-
-	RE::GFxValue MenuEnabled = false;
 
 	if (fillPct) {
 
-		oxygenMeter->uiMovie->GetVariable(&MenuEnabled, "oxygen.MenuSetup");
+		RE::GFxValue MenuEnabled;
+		oxygenMeter->uiMovie->GetVariable(&MenuEnabled, "oxygen.MenuEnabled");
 
-		if (&MenuEnabled.IsBool()) {
-			RE::DebugNotification("foundMenuEnabled"); <---- here
+		if (!MenuEnabled.GetBool()) {
+			RE::DebugNotification("Setting Up OxyMenu");
 			ApplyLayout(oxygenMeter);
-			oxygenMeter->uiMovie->SetVariable("oxygen.RainbowMode", true);
+			ApplyColour(oxygenMeter);
+			oxygenMeter->uiMovie->SetVariable("oxygen.MenuEnabled", true);
 		}
 		
 		const RE::GFxValue currentBreathAmount = *fillPct;
@@ -124,7 +124,7 @@ void oxygenMenu::Update()
 			return;
 		}
 		
-		if (fillPct <= flashWhenLow) {
+		if (fillPct <= flashWhenBelow) {
 			oxygenMeter->uiMovie->Invoke("oxygen.doFlash", nullptr, nullptr, 0);
 		}
 
@@ -160,6 +160,17 @@ void oxygenMenu::ApplyLayout(RE::GPtr<RE::IMenu> oxygenMeter)
 	const RE::GFxValue widget_yscale = Settings::GetSingleton()->widget_yscale;
 	RE::GFxValue posArray[5]{ widget_xpos, widget_ypos, widget_rotation, widget_xscale, widget_yscale };
 	oxygenMeter->uiMovie->Invoke("oxygen.setLocation", nullptr, posArray, 5);
+}
+
+void oxygenMenu::ApplyColour(RE::GPtr<RE::IMenu> oxygenMeter)
+{
+	if (!oxygenMeter || !oxygenMeter->uiMovie)
+		return;
+
+	const RE::GFxValue bar_colour = Settings::GetSingleton()->widget_colour;
+	const RE::GFxValue flash_colour = Settings::GetSingleton()->widget_colour;
+	RE::GFxValue colourArray[2]{ bar_colour, flash_colour };
+	oxygenMeter->uiMovie->Invoke("oxygen.setBarAndFlashColor", nullptr, colourArray, 2);
 }
 
 // Every time a new frame of the menu is rendered call the update function.

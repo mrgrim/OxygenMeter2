@@ -30,15 +30,13 @@ class OxygenMeter extends MovieClip
 	var FlashMeterColor:Color;
 	var FlashMeterColorTransform:Object;
 	
-	var RainbowMode:Boolean = false;
-	var MenuSetup:Boolean = false;
+	var MenuEnabled:Boolean = false;
 	
 	function OxygenMeter()
 	{
 		super();
 		targetPercent = 0;
 		meterDuration = 0.01;
-
 		MeterTimeline = new TimelineLite({paused:true});
 		//FlashTimeline = new TimelineLite({paused:true, onUpdate:setTransformOnUpdate, onUpdateScope:this, onComplete:doFlash, onCompleteScope:this});
 		FlashTimeline = new TimelineLite({paused:true, onUpdate:setTransformOnUpdate, onUpdateScope:this});
@@ -65,10 +63,13 @@ class OxygenMeter extends MovieClip
 		//setLocation(960, 960, 0, 150, 150);
 		doHide();
 		//doShow();
+		//setBarAndFlashColor(0xc076e8, 0xc076e8);
+		//doFadeOut();
 		//doFadeOut();
 		//doFlash();
 		//updateMeterPercent(0);
 		//this.setMeterPercent(0);
+		
 	}
 	
 
@@ -79,7 +80,6 @@ class OxygenMeter extends MovieClip
 		this._rotation = rot;
 		this._xscale = xscale;
 		this._yscale = yscale;
-		MenuSetup = true;
 	}
 	
 	public function setBarAndFlashColor(newBarColor: Number, newFlashColor: Number ): Void
@@ -109,19 +109,10 @@ class OxygenMeter extends MovieClip
 	public function doFlash(): Void
 	{
 		if (!FlashTimeline.isActive()){
-			if (RainbowMode){
-				var c = Math.random() * 0xFFFFFF;
-				setBarAndFlashColor(c, c);
-			}
 			FlashTimeline.to(FlashMeterColorTransform, 0.4, {ease: Power1.easeIn, ab: 0});
 			FlashTimeline.to(FlashMeterColorTransform, 0.3, {ease: Power1.easeOut, ab: -255});
 			FlashTimeline.play();
 		}
-	}
-	
-	public function clearFlash(): Void
-	{
-		
 	}
 	
 	// called onUpdate of FlashTimeline, to apply the ColorTransform alpha tween.
