@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-set(NAME "po3_oxygenMeter2" CACHE STRING "")
+set(NAME "oxygenMeter2" CACHE STRING "")
 set(VERSION 1.0.4 CACHE STRING "")
 set(AE_VERSION 1)
 

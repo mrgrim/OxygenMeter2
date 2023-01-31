@@ -23,6 +23,12 @@ oxygenMenu::oxygenMenu()
 	});
 }
 
+RE::GPtr<oxygenMenu> oxygenMenu::GetOxygenMenu()
+{
+	auto ui = RE::UI::GetSingleton();
+	return ui ? ui->GetMenu<oxygenMenu>(oxygenMenu::MENU_NAME) : nullptr;
+}
+
 struct detail
 {
 	static float get_total_breath_time()
@@ -77,19 +83,6 @@ void oxygenMenu::Hide()
 	}
 }
 
-void oxygenMenu::ToggleVisibility(bool mode)
-{
-	auto ui = RE::UI::GetSingleton();
-	if (!ui)
-		return;
-
-	auto overlayMenu = ui->GetMenu(oxygenMenu::MENU_NAME);
-	if (!overlayMenu || !overlayMenu->uiMovie)
-		return;
-
-	overlayMenu->uiMovie->SetVisible(mode);
-}
-
 // pass the breath meter percents to the scaleform menu using invokes, and tell the menu when to show or hide itself (as in within the scaleform, not the IMenu kHide flag)
 void oxygenMenu::Update()
 {
@@ -104,13 +97,12 @@ void oxygenMenu::Update()
 	if (fillPct) {
 
 		RE::GFxValue MenuEnabled;
-		oxygenMeter->uiMovie->GetVariable(&MenuEnabled, "oxygen.MenuEnabled");
+		oxygenMeter->uiMovie->GetVariable(&MenuEnabled, "main.MenuEnabled");
 
 		if (!MenuEnabled.GetBool()) {
-			RE::DebugNotification("Setting Up OxyMenu");
 			ApplyLayout(oxygenMeter);
 			ApplyColour(oxygenMeter);
-			oxygenMeter->uiMovie->SetVariable("oxygen.MenuEnabled", true);
+			oxygenMeter->uiMovie->SetVariable("main.MenuEnabled", true);
 		}
 		
 		const RE::GFxValue currentBreathAmount = *fillPct;
@@ -120,16 +112,16 @@ void oxygenMenu::Update()
 		}
 
 		if (drowning && fadeWhenDrowning) {
-			oxygenMeter->uiMovie->Invoke("oxygen.doFadeOut", nullptr, &currentBreathAmount, 1);
+			oxygenMeter->uiMovie->Invoke("main.doFadeOut", nullptr, &currentBreathAmount, 1);
 			return;
 		}
 		
 		if (fillPct <= flashWhenBelow) {
-			oxygenMeter->uiMovie->Invoke("oxygen.doFlash", nullptr, nullptr, 0);
+			oxygenMeter->uiMovie->Invoke("main.doFlash", nullptr, nullptr, 0);
 		}
 
-		oxygenMeter->uiMovie->Invoke("oxygen.doShow", nullptr, nullptr, 0);
-		oxygenMeter->uiMovie->Invoke("oxygen.setMeterPercent", nullptr, &currentBreathAmount, 1);
+		oxygenMeter->uiMovie->Invoke("main.doShow", nullptr, nullptr, 0);
+		oxygenMeter->uiMovie->Invoke("main.setMeterPercent", nullptr, &currentBreathAmount, 1);
 
 		if (*fillPct == 0.0) {
 			drowning = true;
@@ -140,8 +132,8 @@ void oxygenMenu::Update()
 			holding_breath = false;
 			drowning = false;
 			const RE::GFxValue refill = 100;
-			oxygenMeter->uiMovie->Invoke("oxygen.updateMeterPercent", nullptr, &refill, 1);
-			oxygenMeter->uiMovie->Invoke("oxygen.doFadeOut", nullptr, nullptr, 0);
+			oxygenMeter->uiMovie->Invoke("main.updateMeterPercent", nullptr, &refill, 1);
+			oxygenMeter->uiMovie->Invoke("main.doFadeOut", nullptr, nullptr, 0);
 		}
 	}
 
@@ -159,7 +151,7 @@ void oxygenMenu::ApplyLayout(RE::GPtr<RE::IMenu> oxygenMeter)
 	const RE::GFxValue widget_xscale = Settings::GetSingleton()->widget_xscale;
 	const RE::GFxValue widget_yscale = Settings::GetSingleton()->widget_yscale;
 	RE::GFxValue posArray[5]{ widget_xpos, widget_ypos, widget_rotation, widget_xscale, widget_yscale };
-	oxygenMeter->uiMovie->Invoke("oxygen.setLocation", nullptr, posArray, 5);
+	oxygenMeter->uiMovie->Invoke("main.setLocation", nullptr, posArray, 5);
 }
 
 void oxygenMenu::ApplyColour(RE::GPtr<RE::IMenu> oxygenMeter)
@@ -170,7 +162,7 @@ void oxygenMenu::ApplyColour(RE::GPtr<RE::IMenu> oxygenMeter)
 	const RE::GFxValue bar_colour = Settings::GetSingleton()->widget_colour;
 	const RE::GFxValue flash_colour = Settings::GetSingleton()->widget_colour;
 	RE::GFxValue colourArray[2]{ bar_colour, flash_colour };
-	oxygenMeter->uiMovie->Invoke("oxygen.setBarAndFlashColor", nullptr, colourArray, 2);
+	oxygenMeter->uiMovie->Invoke("main.setBarAndFlashColor", nullptr, colourArray, 2);
 }
 
 // Every time a new frame of the menu is rendered call the update function.
@@ -179,3 +171,58 @@ void oxygenMenu::AdvanceMovie(float a_interval, std::uint32_t a_currentTime)
 	oxygenMenu::Update();
 	RE::IMenu::AdvanceMovie(a_interval, a_currentTime);
 }
+
+RE::UI_MESSAGE_RESULTS oxygenMenu::ProcessMessage(RE::UIMessage& a_message)
+{
+	using Type = RE::UI_MESSAGE_TYPE;
+
+	switch (*a_message.type) {
+	case Type::kShow:
+		OnOpen();
+		return RE::IMenu::ProcessMessage(a_message);
+	case Type::kHide:
+		OnClose();
+		return RE::IMenu::ProcessMessage(a_message);
+	default:
+		return RE::IMenu::ProcessMessage(a_message);
+	}
+}
+
+bool oxygenMenu::IsOpen() const
+{
+	return _bIsOpen;
+}
+
+void oxygenMenu::OnOpen() 
+{
+	_bIsOpen = true;
+}
+
+void oxygenMenu::OnClose() 
+{
+	_bIsOpen = false;
+}
+
+void oxygenMenu::SetMenuVisibilityMode(MenuVisibilityMode a_mode)
+{
+	auto menu = GetOxygenMenu();
+	if (menu) {
+		menu->_menuVisibilityMode = a_mode;
+
+		auto _view = menu->uiMovie;
+
+		if (_view) {
+			switch (menu->_menuVisibilityMode) {
+			case MenuVisibilityMode::kHidden:
+				_view->SetVisible(false);
+				break;
+
+			case MenuVisibilityMode::kVisible:{
+				_view->SetVisible(true);
+				break;
+				}
+			}
+		}
+	}
+}
+

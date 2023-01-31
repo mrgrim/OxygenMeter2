@@ -31,7 +31,7 @@ static void SKSEMessageHandler(SKSE::MessagingInterface::Message* message)
 extern "C" DLLEXPORT constinit auto SKSEPlugin_Version = []() {
 	SKSE::PluginVersionData v;
 	v.PluginVersion(Version::MAJOR);
-	v.PluginName("po3_OxygenMeter2");
+	v.PluginName("Oxygen Meter 2");
 	v.AuthorName("powerofthree and OsmosisWrench");
 	v.UsesAddressLibrary();
 	v.UsesUpdatedStructs();

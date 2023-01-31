@@ -9,7 +9,7 @@ import mx.utils.Delegate;
 import com.greensock.TimelineLite;
 import com.greensock.easing.*;
 
-class OxygenMeter extends MovieClip
+class OsmosisMeter extends MovieClip
 {
 	var MeterContainer:MovieClip;
 	var FlashMeter:MovieClip;
@@ -32,7 +32,7 @@ class OxygenMeter extends MovieClip
 	
 	var MenuEnabled:Boolean = false;
 	
-	function OxygenMeter()
+	function OsmosisMeter()
 	{
 		super();
 		targetPercent = 0;
@@ -46,7 +46,7 @@ class OxygenMeter extends MovieClip
 		MeterContainerBarColor = new Color(MeterContainer.Bar.BarColour);
 		MeterContainerBarBGColor = new Color(MeterContainer.BarBG);
 		FlashMeterColor = new Color(FlashMeter);
-		//setBarAndFlashColor(0xc076e8, 0xc076e8);
+		setBarAndFlashColor(0xc076e8, 0xc076e8);
 
 		
 		FlashMeterColorTransform = { aa: 100, ab: -255 }
