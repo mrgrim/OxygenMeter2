@@ -28,10 +28,8 @@ RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuO
 	// On HUD menu open/close - open/close the plugin's HUD menu
 	if (a_event && (a_event->menuName == RE::HUDMenu::MENU_NAME || a_event->menuName == "TrueHUD"sv)) {
 		if (a_event->opening) {
-			logger::info("Showing oxygen meter after HUD opening.");
 			oxygenMenu::Show();
 		} else {
-			logger::info("Hiding oxygen meter after HUD closing.");
 			oxygenMenu::Hide();
 		}
 	}

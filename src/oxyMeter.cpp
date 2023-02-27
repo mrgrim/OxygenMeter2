@@ -223,9 +223,6 @@ void oxygenMenu::OnClose()
 
 void oxygenMenu::SetMenuVisibilityMode(MenuVisibilityMode a_mode)
 {
-	// This does the exact same thing as sending show and hide messages. You can see the events being caught
-	// with OnOpen and OnClose.
-
 	auto menu = GetOxygenMenu();
 	if (menu) {
 		auto _view = menu->uiMovie;
