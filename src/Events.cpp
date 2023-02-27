@@ -14,19 +14,24 @@ MenuOpenCloseEventHandler* MenuOpenCloseEventHandler::GetSingleton()
 void MenuOpenCloseEventHandler::Register()
 {
 	auto ui = RE::UI::GetSingleton();
-	ui->AddEventSink(GetSingleton());
+	ui->AddEventSink<RE::MenuOpenCloseEvent>(GetSingleton());
+	logger::info("Registered {}"sv, typeid(RE::MenuOpenCloseEvent).name());
 }
 
 RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuOpenCloseEvent* a_event, RE::BSTEventSource<RE::MenuOpenCloseEvent>*)
 {
 	// from ersh TrueHud pretty much verbatim
+	if (a_event)
+		logger::debug("Received RE::MenuOpenCloseEvent for {} with opening {}"sv, a_event->menuName, a_event->opening);
 
 	using ContextID = RE::UserEvents::INPUT_CONTEXT_ID;
 	// On HUD menu open/close - open/close the plugin's HUD menu
-	if (a_event && a_event->menuName == RE::HUDMenu::MENU_NAME) {
+	if (a_event && (a_event->menuName == RE::HUDMenu::MENU_NAME || a_event->menuName == "TrueHUD"sv)) {
 		if (a_event->opening) {
+			logger::info("Showing oxygen meter after HUD opening.");
 			oxygenMenu::Show();
 		} else {
+			logger::info("Hiding oxygen meter after HUD closing.");
 			oxygenMenu::Hide();
 		}
 	}
@@ -36,15 +41,15 @@ RE::BSEventNotifyControl MenuOpenCloseEventHandler::ProcessEvent(const RE::MenuO
 	if (controlMap) {
 		auto& priorityStack = controlMap->contextPriorityStack;
 		if (priorityStack.empty()) {
-			oxygenMenu::SetMenuVisibilityMode(oxygenMenu::MenuVisibilityMode::kHidden);
-		} 
+			oxygenMenu::want_visible = false;
+		}
 		else if (priorityStack.back() == ContextID::kGameplay ||
 				 priorityStack.back() == ContextID::kFavorites ||
 				 priorityStack.back() == ContextID::kConsole) 
 		{
-			oxygenMenu::SetMenuVisibilityMode(oxygenMenu::MenuVisibilityMode::kVisible);
+			oxygenMenu::want_visible = true;
 		} else {
-			oxygenMenu::SetMenuVisibilityMode(oxygenMenu::MenuVisibilityMode::kHidden);
+			oxygenMenu::want_visible = false;
 		}
 	}
 
