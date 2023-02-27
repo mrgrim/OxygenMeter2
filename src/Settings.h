@@ -29,8 +29,11 @@ public:
 		ini::get_value(ini, widget_xscale, "Position", "Widget X scale", ";The X scale of the widget, default is 75.000000");
 		ini::get_value(ini, widget_yscale, "Position", "Widget Y scale", ";The Y scale of the widget, default is 75.000000");
 
-		widget_xpos = std::clamp(widget_xpos, 0.0f, 100.0f);
-		widget_ypos = std::clamp(widget_ypos, 0.0f, 100.0f);
+		if (widget_xpos > 100.0f || widget_xpos < 0.0f)
+			widget_xpos = 50.0f;
+
+		if (widget_ypos > 100.0f || widget_ypos < 0.0f)
+			widget_ypos = 96.3f;
 
 		ini.SaveFile(path);
 	}
